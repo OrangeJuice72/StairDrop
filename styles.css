@@ -392,21 +392,37 @@
     #hud.hud-art .compact-hud {
       position: absolute;
       inset: 0;
-      grid-template-columns: 27.5% 40.5% 28%;
-      gap: 1.2%;
-      padding: 5.7% 4.4% 12.2%;
-      align-items: stretch;
+      display: block;
+      padding: 0;
     }
 
     #hud.hud-art .hud-block {
+      position: absolute;
+      top: 33.5%;
+      height: 43%;
       display: flex;
-      align-items: flex-end;
+      align-items: center;
       justify-content: center;
-      padding: 0 8% 13%;
+      padding: 0 3%;
       background: transparent;
       border: none;
       border-radius: 0;
       box-shadow: none;
+    }
+
+    #hud.hud-art .hud-block:nth-child(1) {
+      left: 5.5%;
+      width: 23.8%;
+    }
+
+    #hud.hud-art .hud-block:nth-child(2) {
+      left: 34.2%;
+      width: 31.3%;
+    }
+
+    #hud.hud-art .hud-block:nth-child(3) {
+      left: 73.5%;
+      width: 19.5%;
     }
 
     #hud.hud-art .hud-label {
