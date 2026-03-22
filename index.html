@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Stair Drop+" />
+  <meta name="theme-color" content="#08111f" />
+  <title>Stair Drop+</title>
+  <link rel="manifest" href="manifest.webmanifest?v=20260321f" />
+  <link rel="icon" type="image/png" sizes="1024x1024" href="icon.png?v=20260321f" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icon.png?v=20260321f" />
+  <link rel="apple-touch-icon-precomposed" href="icon.png?v=20260321f" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+  <link rel="stylesheet" href="styles.css?v=20260321f" />
+</head>
+<body>
+  <div class="ambient-orb orb-1"></div>
+  <div class="ambient-orb orb-2"></div>
+  <div class="ambient-orb orb-3"></div>
+  <div id="menu-backdrop"></div>
+
+  <div id="hud" class="glass-panel panel-sheen">
+    <div class="compact-hud">
+      <div class="hud-block">
+        <div class="hud-label">Steps</div>
+        <div class="hud-value" id="steps-display">0</div>
+      </div>
+      <div class="hud-block">
+        <div class="hud-label">Score</div>
+        <div class="hud-value" id="score-display">0</div>
+      </div>
+      <div class="hud-block">
+        <div class="hud-label">Coins</div>
+        <div class="hud-value" id="hud-coins">0</div>
+      </div>
+    </div>
+    <div id="status-pill">Ready</div>
+  </div>
+
+  <div id="top-controls">
+    <button class="mini-btn" onclick="togglePause()">Pause</button>
+  </div>
+
+  <div id="perk-actions"></div>
+
+  <div id="legend" class="glass-panel panel-sheen">
+    <h4>Special Stairs</h4>
+    <div class="legend-list">
+      <div class="legend-item"><span class="legend-dot" style="background:#56d7ff"></span> Dash</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#ff61ee"></span> Chaos</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#79e38d"></span> Bounce</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#ffb35c"></span> Sticky</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#dff9ff"></span> Ice</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#ffd166"></span> Coin</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#ff7a7a"></span> Break</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#7a7cff"></span> Gravity</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#d7ecff"></span> Glass</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#c27dff"></span> Roulette</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#94a3ff"></span> Portal</div>
+    </div>
+  </div>
+
+  <div id="main-menu" class="menu-art-panel">
+    <div class="menu-meta-row">
+      <div class="menu-stat-chip">Credits <span id="menu-coins">0</span></div>
+      <div class="menu-stat-chip">High <span id="menu-high-score">0</span></div>
+      <div class="menu-stat-chip">Best <span id="menu-best-steps">0</span></div>
+    </div>
+
+    <div class="menu-hitboxes">
+      <button class="menu-hitbox" id="menu-play-btn" onclick="startGame()" aria-label="Play">Play</button>
+      <button class="menu-hitbox" id="menu-mode-btn" onclick="openModePanel()" aria-label="Modes and Class">Modes & Class</button>
+      <button class="menu-hitbox" id="menu-shop-btn" onclick="openShop()" aria-label="Upgrade Bay">Upgrade Bay</button>
+      <button class="menu-hitbox" id="menu-achievements-btn" onclick="openChallenges()" aria-label="Achievements">Achievements</button>
+    </div>
+  </div>
+
+  <div id="mode-panel" class="glass-panel panel-sheen">
+    <div class="shop-header">
+      <div class="ui-tag">Run Setup</div>
+      <h2 class="shop-title">Mode & Cube Class</h2>
+      <p class="shop-subtitle">Pick how the run feels before you dive in.</p>
+    </div>
+    <div class="card-list" id="mode-list"></div>
+    <div class="card-list" id="class-list" style="margin-top:12px;"></div>
+    <div class="menu-actions" style="margin-top:20px;">
+      <button class="secondary-btn danger-btn" onclick="closeModePanel()">Back</button>
+    </div>
+  </div>
+
+  <div id="shop-menu" class="glass-panel panel-sheen">
+    <div class="shop-header">
+      <div class="ui-tag">Packs & Customization</div>
+      <h2 class="shop-title">Upgrade Bay</h2>
+      <p class="shop-subtitle">Pick a world pack, then fine-tune your run.</p>
+      <div class="coin-card">Credits <span id="shop-coins">0</span></div>
+    </div>
+
+    <div class="shop-tabs">
+      <button class="tab-btn active" onclick="switchShopTab('packs')" id="tab-packs">Packs</button>
+      <button class="tab-btn" onclick="switchShopTab('skins')" id="tab-skins">Skins</button>
+      <button class="tab-btn" onclick="switchShopTab('trails')" id="tab-trails">Trails</button>
+    </div>
+
+    <div class="shop-section">
+      <h3 id="shop-section-title">World Packs</h3>
+      <div id="shop-content" class="shop-grid"></div>
+    </div>
+
+    <div class="menu-actions" style="margin-top:20px;">
+      <button class="secondary-btn danger-btn" onclick="closeShop()">Back to Menu</button>
+    </div>
+  </div>
+
+  <div id="challenge-panel" class="glass-panel panel-sheen">
+    <div class="shop-header">
+      <div class="ui-tag">Progress</div>
+      <h2 class="shop-title">Achievements</h2>
+      <p class="shop-subtitle">Little goals to make every run mean something.</p>
+    </div>
+    <div class="card-list" id="challenge-list"></div>
+    <div class="menu-actions" style="margin-top:20px;">
+      <button class="secondary-btn danger-btn" onclick="closeChallenges()">Close</button>
+    </div>
+  </div>
+
+  <div id="perk-panel" class="glass-panel panel-sheen">
+    <div class="shop-header">
+      <div class="ui-tag">Mid-run Choice</div>
+      <h2 class="shop-title">Pick a Perk</h2>
+      <p class="shop-subtitle">Choose one boost and keep the run alive.</p>
+    </div>
+    <div class="perk-grid" id="perk-list"></div>
+  </div>
+
+  <div id="pause-panel" class="glass-panel panel-sheen">
+    <div class="shop-header">
+      <div class="ui-tag">Run Paused</div>
+      <h2 class="shop-title">Pause Menu</h2>
+      <p class="shop-subtitle">Take a breath or jump back in.</p>
+    </div>
+    <div class="menu-actions">
+      <button class="primary-btn" onclick="togglePause()">Resume</button>
+      <button class="secondary-btn" onclick="openChallenges()">Goals</button>
+      <button class="primary-btn gold-btn" onclick="startGame()">Restart Run</button>
+      <button class="secondary-btn danger-btn" onclick="showMainMenu()">Main Menu</button>
+    </div>
+  </div>
+
+  <div id="game-over" class="glass-panel panel-sheen">
+    <div class="result-badge ui-tag">Run Complete</div>
+    <h2 id="game-over-title">Game Over</h2>
+
+    <div class="result-score">
+      Steps
+      <span id="final-steps">0</span>
+    </div>
+
+    <div class="result-score" style="margin-top:10px;">
+      Score
+      <span id="final-score">0</span>
+    </div>
+
+    <div class="earned-wrap">+ <span id="earned-coins">0</span> coins earned</div>
+    <div class="earned-wrap" style="color:#c8f7ff; border-color:rgba(46,230,201,0.18); background:rgba(46,230,201,0.08);">
+      Best Combo: <span id="best-combo-run">x1</span>
+    </div>
+    <div class="earned-wrap" style="color:#efe4ff; border-color:rgba(124,92,255,0.18); background:rgba(124,92,255,0.08);">
+      Records • Score: <span id="game-over-high-score">0</span> • Steps: <span id="game-over-best-steps">0</span>
+    </div>
+
+    <div class="run-breakdown" id="run-breakdown"></div>
+
+    <div class="result-actions">
+      <button class="primary-btn" onclick="startGame()">Play Again</button>
+      <button class="secondary-btn danger-btn" onclick="showMainMenu()">Main Menu</button>
+    </div>
+  </div>
+
+  <script src="src/config.js?v=20260321f"></script>
+  <script src="src/storage.js?v=20260321f"></script>
+  <script src="src/game.js?v=20260321f"></script>
+</body>
+</html>
